@@ -50,27 +50,31 @@ class Server():
         print("Disconnected users ", sender,target)
 
     def accept_msgs(self, conn,addr):
-        while True:
-            data =conn.recv(1024)
-            print(f"Accepted packets from {addr}")
-    
-            if not data:
-                break
-            rawmsg=data.decode().strip()
-            if "U0SER" in rawmsg:
-                self.add_new_client(rawmsg, conn)
-                
-            elif "C0NNECT" in rawmsg:
-                self.connect_clients(self.get_username(conn), rawmsg)
-            elif "DC0NNECT" in rawmsg:
-                self.connect_clients(self.get_username(conn), rawmsg)
+        error=False
+        while not error:
+            try:
+                data =conn.recv(1024)
+                print(f"Accepted packets from {addr}")
+        
+                if not data:
+                    break
+                rawmsg=data.decode().strip()
+                if "U0SER" in rawmsg:
+                    self.add_new_client(rawmsg, conn)
+                    
+                elif "C0NNECT" in rawmsg:
+                    self.connect_clients(self.get_username(conn), rawmsg)
+                elif "DC0NNECT" in rawmsg:
+                    self.connect_clients(self.get_username(conn), rawmsg)
 
-            else:
-                targets = rawmsg.split("-")
-                self.route_msg(targets[2],targets[0],targets[1]) # first section is the sender, then receiver, then msg
+                else:
+                    targets = rawmsg.split("-")
+                    self.route_msg(targets[2],targets[0],targets[1]) # first section is the sender, then receiver, then msg
 
-
-
+            except ConnectionResetError or ConnectionAbortedError:
+                print("User has disconeccted")
+                error=True
+            
     def add_new_client(self, username, conn):
         self.connections[username[5:]] =conn
         print(f"registered: {username[5:]}")
