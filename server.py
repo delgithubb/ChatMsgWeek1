@@ -30,9 +30,9 @@ class Server():
             for username,v in self.connections.items():
                 if username == receiver:
                     rconn= self.connections[receiver]    
-                    msg = + sender +": " + msg
+                    msg = sender +":" + msg
                     rconn.send(msg.encode())
-                else:
+                elif username!=receiver:
                     sconn.send('The user that you have entered does not exist'.encode())
         else:
             sconn.send("You cannot send a message to yourself".encode())
@@ -50,8 +50,7 @@ class Server():
         print("Disconnected users ", sender,target)
 
     def accept_msgs(self, conn,addr):
-        error=False
-        while not error:
+        while True:
             try:
                 data =conn.recv(1024)
                 print(f"Accepted packets from {addr}")
@@ -72,8 +71,8 @@ class Server():
                     self.route_msg(targets[2],targets[0],targets[1]) # first section is the sender, then receiver, then msg
 
             except ConnectionResetError or ConnectionAbortedError:
-                print("User has disconeccted")
-                error=True
+                print("User has disconected")
+                break
             
     def add_new_client(self, username, conn):
         self.connections[username[5:]] =conn
@@ -81,7 +80,7 @@ class Server():
 
 
 
-server = Server("localhost",8080)
+server = Server("localhost",65422)
 server.alphasock.listen(5)
 print("Server Started...")
 

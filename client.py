@@ -43,7 +43,7 @@ class Client():
 name = input("Before connecting to the server. Please your user name:")
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-    sock.connect(("localhost", 8080))
+    sock.connect(("localhost", 65422))
     client = Client(name,sock)
 
     receivemsgthread=threading.Thread(target=client.receive_msg, daemon= True)
